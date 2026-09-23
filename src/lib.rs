@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use log::{error, info};
 use sqlx::migrate::Migrator;
@@ -104,6 +104,21 @@ pub async fn migrate(database_url: &str, project: &str, extra_schemas: &[&str]) 
     recreate_views(&postgres_pool, &views).await?;
 
     Ok(())
+}
+
+/// Scaffolds a new, empty migration file under `./{project}-migrate/migrations`,
+/// prefixed with a `YYYYMMDDHHMMSS` timestamp so migrations sort chronologically and
+/// concurrent branches don't collide on the same version number.
+///
+/// Returns the path of the created file.
+pub fn add_migration(project: &str, name: &str) -> Result<PathBuf, Error> {
+    let dir = format!("./{}-migrate/migrations", project);
+    fs::create_dir_all(&dir)?;
+    let timestamp = chrono::Utc::now().format("%Y%m%d%H%M%S");
+    let slug = name.trim().replace(' ', "_");
+    let path = Path::new(&dir).join(format!("{timestamp}_{slug}.sql"));
+    fs::write(&path, "-- Add migration script here\n")?;
+    Ok(path)
 }
 
 async fn recreate_views(postgres_pool: &sqlx::PgPool, views: &[(String, String)]) -> Result<(), Error> {

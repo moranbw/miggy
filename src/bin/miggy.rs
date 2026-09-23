@@ -24,6 +24,15 @@ enum Command {
         #[arg(long = "extra-schema")]
         extra_schemas: Vec<String>,
     },
+    /// Scaffold a new, empty migration file.
+    Add {
+        /// Project name: used as the `./{project}-migrate` directory prefix.
+        #[arg(long)]
+        project: String,
+
+        /// Migration name, e.g. `add_widgets_table`.
+        name: String,
+    },
 }
 
 #[tokio::main]
@@ -40,6 +49,13 @@ async fn main() {
             let extra_schemas: Vec<&str> = extra_schemas.iter().map(String::as_str).collect();
             miggy::migrate(&database_url, &project, &extra_schemas).await
         }
+        Command::Add { project, name } => match miggy::add_migration(&project, &name) {
+            Ok(path) => {
+                println!("Created migration: {}", path.display());
+                Ok(())
+            }
+            Err(e) => Err(e),
+        },
     };
 
     if let Err(e) = result {

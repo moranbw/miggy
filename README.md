@@ -40,17 +40,18 @@ containing a `migrations/` folder and a `views/` folder:
 ```text
 ./foo-migrate/
   migrations/
-    001_initial.sql
-    002_add_table.sql
+    20260101120000_initial.sql
+    20260103093000_add_table.sql
   views/
     widget_names.sql
     another_view.sql
 ```
 
-- **`migrations/`** — plain sqlx migration files, run in order and tracked in that
-  project's `_sqlx_migrations` table. See the
-  [sqlx migrate docs](https://docs.rs/sqlx/latest/sqlx/migrate/index.html) for naming
-  rules.
+- **`migrations/`** — plain sqlx migration files, run in order (by their numeric
+  prefix) and tracked in that project's `_sqlx_migrations` table. `views/` is entirely
+  optional — if it's missing, miggy just skips the drop/recreate steps. See the
+  [sqlx migrate docs](https://docs.rs/sqlx/latest/sqlx/migrate/index.html) for the full
+  naming rules.
 - **`views/`** — one `CREATE VIEW ...` statement per file. The file name (minus `.sql`)
   is treated as the view name for the drop step, so `widget_names.sql` must define a
   view named `widget_names`.
@@ -59,10 +60,30 @@ Put this directory in your project's repo root (or wherever your `just`/build to
 runs commands from) — miggy doesn't care where it lives as long as the relative path
 resolves.
 
+Use `miggy add` to scaffold a new migration file (see below) rather than creating them
+by hand.
+
 ## Installing / running
 
-For now, build it from source (a `cargo-binstall`-installable release is planned once
-this repo is pushed to GitHub with release CI set up):
+Via [mise](https://mise.jdx.dev):
+
+```sh
+mise use 'cargo:https://github.com/moranbw/miggy@tag:v0.1.0'
+```
+
+(or `@branch:main` instead of a tag, to track latest `main`).
+
+Directly with cargo, no mise:
+
+```sh
+cargo install --git https://github.com/moranbw/miggy --tag v0.1.0
+```
+
+Both of these build from source — there are no prebuilt binaries yet (no
+`cargo-binstall`/`mise github:` support), so a Rust toolchain is required on the
+installing machine.
+
+For local development, build from a checkout instead:
 
 ```sh
 cargo install --path . --locked
@@ -89,6 +110,17 @@ Typical `justfile` recipe:
 migrate:
     miggy migrate --project foo --database-url {{env_var('DATABASE_URL')}}
 ```
+
+### Adding a migration
+
+```sh
+miggy add --project foo add_widgets_table
+```
+
+Creates `./foo-migrate/migrations/<timestamp>_add_widgets_table.sql` (an empty file
+with a placeholder comment) and prints the path. Timestamps (`YYYYMMDDHHMMSS`) are used
+instead of sequential numbers so two branches adding migrations independently don't
+collide on the same version when merged.
 
 ### Logging
 

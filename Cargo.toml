@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 description = "Bare-bones, opinionated wrapper around the sqlx Migrator"
 license = "MIT"
+repository = "https://github.com/moranbw/miggy"
+readme = "README.md"
 
 [[bin]]
 name = "miggy"
@@ -20,3 +22,4 @@ clap = { version = "4", features = ["derive", "env"] }
 thiserror = "2"
 log = "0.4"
 env_logger = "0.11"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
