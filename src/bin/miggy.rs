@@ -37,8 +37,8 @@ enum Command {
 
 #[tokio::main]
 async fn main() {
-    env_logger::init();
     dotenvy::dotenv().ok();
+    env_logger::init();
     let cli = Cli::parse();
 
     let result = match cli.command {
