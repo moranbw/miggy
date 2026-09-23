@@ -99,7 +99,10 @@ miggy migrate --project foo --database-url postgres://user:pass@localhost/mydb
 
 - `--project <name>` (required) — directory prefix (`./{project}-migrate`) and the
   Postgres schema to scope everything to.
-- `--database-url <url>` — falls back to the `DATABASE_URL` env var if omitted.
+- `--database-url <url>` — falls back to the `DATABASE_URL` env var if omitted, which
+  in turn can come from a `.env` file in the current directory (loaded automatically,
+  same convention as `sqlx-cli`). A `DATABASE_URL` already set in your shell takes
+  priority over `.env`.
 - `--extra-schema <schema>` (repeatable) — additional schema(s) to add to the
   `search_path`, ahead of `public`. Omit unless you actually need cross-schema access
   (e.g. views that reference tables in another schema).
