@@ -1,0 +1,22 @@
+[package]
+name = "miggy"
+version = "0.1.0"
+edition = "2021"
+description = "Bare-bones, opinionated wrapper around the sqlx Migrator"
+license = "MIT"
+
+[[bin]]
+name = "miggy"
+path = "src/bin/miggy.rs"
+
+[dependencies]
+sqlx = { version = "0.9", features = [
+    "postgres",
+    "runtime-tokio",
+    "tls-rustls",
+] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+clap = { version = "4", features = ["derive", "env"] }
+thiserror = "2"
+log = "0.4"
+env_logger = "0.11"
